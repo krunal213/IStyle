@@ -1,14 +1,11 @@
-
 name: "Build"
 
 on:
   pull_request:
     branches:
       - main
-      - main
   push:
     branches:
-      - main
       - main
 
 jobs:
@@ -21,57 +18,70 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-        #2 Setup Java
+      #2 Setup Java
       - name: Set Up Java
         uses: actions/setup-java@v3.12.0
         with:
           distribution: 'oracle'
           java-version: '17'
 
-        #3 Setup Flutter
+      #3 Setup Flutter
       - name: Set Up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.2'
           channel: 'stable'
 
-        #4 Install Dependencies
+      #4 Install Dependencies
       - name: Install Dependencies
         run: flutter pub get
 
-        #5 Building APK
-      - name: Build APK
-        run: flutter build apk --debug
+      #5 Run Tests
+      - name: Run Tests
+        run: flutter test --coverage
 
-        #7 Building App Bundle (aab)
-      - name: Build appBundle
-        run: flutter build appbundle
+      #6 Generate HTML Test Report
+      - name: Generate HTML Test Report
+        run: |
+          flutter test --coverage
+          genhtml coverage/lcov.info --output-directory coverage/html
 
-        #8 Build IPA ( IOS Build )
-      - name: Build IPA
+      #7 Build Debug APK and AAB (Only if tests pass)
+      - name: Build Debug APK and AAB
+        if: success()
+        run: |
+          flutter build apk --debug
+          flutter build appbundle --debug
+
+      #8 Build Debug IPA (iOS Build)
+      - name: Build Debug IPA
+        if: success()
         run: flutter build ios --debug --no-codesign
 
       - name: Compress Archives and IPAs
+        if: success()
         run: |
           cd build
           tar -czf ios_build.tar.gz ios
 
-        #9 Upload Artifacts
+      #9 Upload Artifacts
       - name: Upload Artifacts
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: Releases Apps
+          name: Debug Builds
           path: |
             build/app/outputs/flutter-apk/app-debug.apk
             build/app/outputs/bundle/debug/app-debug.aab
             build/ios_build.tar.gz
+            coverage/html
 
-      - name: Upload to gdrive
+      #10 Upload to Google Drive
+      - name: Upload to Google Drive
+        if: success()
         uses: adityak74/google-drive-upload-git-action@main
         with:
           credentials: ${{ secrets.DRIVE_CREDENTIALS }}
-          filename: app/build/outputs/apk/debug/*.apk  
+          filename: build/app/outputs/flutter-apk/app-debug.apk
           folderId: ${{ secrets.FOLDERID }}
-          overwrite: "true"       
-
-
+          overwrite: "true"
