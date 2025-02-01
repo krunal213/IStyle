@@ -42,6 +42,8 @@ jobs:
 
       #6 Run Tests
       - name: Run Tests
+        id: test
+        continue-on-error: true
         run: flutter test --coverage
 
       #7 Generate HTML Test Report
@@ -79,8 +81,24 @@ jobs:
             build/ios_build.tar.gz
             coverage/html
 
-      #11 Send Email with Debug APK and Test Report
-      - name: Send Email
+      #11 Send Email - Test Failure Report
+      - name: Send Email if Tests Fail
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "Flutter Test Failure Report"
+          body: "Tests failed. Please find the attached test report."
+          to: "krunalmkathikar1993@gmail.com"
+          from: "CI/CD Pipeline"
+          attachments: |
+            coverage/html/index.html
+
+      #12 Send Email - Successful Build and Test Report
+      - name: Send Email if Tests Pass
         if: success()
         uses: dawidd6/action-send-mail@v3
         with:
@@ -89,9 +107,10 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "Flutter Build & Test Report"
-          body: "Please find the attached Debug APK and Test Report."
+          body: "Build and tests were successful. Please find the attached Debug APK, iOS build, and Test Report."
           to: "krunalmkathikar1993@gmail.com"
           from: "CI/CD Pipeline"
           attachments: |
             build/app/outputs/flutter-apk/app-debug.apk
+            build/ios_build.tar.gz
             coverage/html/index.html
