@@ -21,6 +21,7 @@ class _SplashPageState extends State<SplashPage> {
     return Scaffold(
       body: Stack(children: [
         Image(
+          key: Key("image_widget_background"),
           image: AssetImage('assets/images/ic_welcome_background.png'),
           fit: BoxFit.cover,
           height: double.infinity,
@@ -28,6 +29,7 @@ class _SplashPageState extends State<SplashPage> {
           alignment: Alignment.center,
         ),
         Opacity(
+            key: Key("opacity_widget"),
             opacity: 0.85,
             child: Container(
               color: Colors.black,
@@ -40,11 +42,14 @@ class _SplashPageState extends State<SplashPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Image(
+                key: Key("image_widget_icon"),
                 image: AssetImage('assets/images/ic_high_style.png'),
                 width: 254,
                 height: 216,
               ),
-              Text("Welcome to \n High Style Apparel",
+              Text(
+                  "Welcome to \n High Style Apparel",
+                  key: Key("text_widget_welcome_message"),
                   style: TextStyle(
                       fontSize: 24.0,
                       fontWeight: FontWeight.bold,
@@ -52,10 +57,12 @@ class _SplashPageState extends State<SplashPage> {
                   textAlign: TextAlign.center),
               SizedBox(height: 2),
               Text("The home for a highstyleapparel",
+                  key: Key("text_widget_slogan"),
                   style: TextStyle(fontSize: 16.0, color: Colors.white),
                   textAlign: TextAlign.center),
               SizedBox(height: 16),
               OutlinedButton(
+                  key: Key("outlinebutton_widget_login"),
                   style: OutlinedButton.styleFrom(
                       backgroundColor: Color(0xFF444343),
                       minimumSize: Size(164, 48),
@@ -71,6 +78,7 @@ class _SplashPageState extends State<SplashPage> {
                           color: Colors.white))),
               SizedBox(height: 16),
               OutlinedButton(
+                key: Key("outlinebutton_widget_signup"),
                 style: OutlinedButton.styleFrom(
                     backgroundColor: Color(0xFF444343),
                     minimumSize: Size(164, 48),
