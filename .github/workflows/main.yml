@@ -36,24 +36,27 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      #5 Run Tests
+      #5 Install lcov
+      - name: Install lcov
+        run: brew install lcov
+
+      #6 Run Tests
       - name: Run Tests
         run: flutter test --coverage
 
-      #6 Generate HTML Test Report
+      #7 Generate HTML Test Report
       - name: Generate HTML Test Report
         run: |
-          flutter test --coverage
           genhtml coverage/lcov.info --output-directory coverage/html
 
-      #7 Build Debug APK and AAB (Only if tests pass)
+      #8 Build Debug APK and AAB (Only if tests pass)
       - name: Build Debug APK and AAB
         if: success()
         run: |
           flutter build apk --debug
           flutter build appbundle --debug
 
-      #8 Build Debug IPA (iOS Build)
+      #9 Build Debug IPA (iOS Build)
       - name: Build Debug IPA
         if: success()
         run: flutter build ios --debug --no-codesign
@@ -64,7 +67,7 @@ jobs:
           cd build
           tar -czf ios_build.tar.gz ios
 
-      #9 Upload Artifacts
+      #10 Upload Artifacts
       - name: Upload Artifacts
         if: success()
         uses: actions/upload-artifact@v4
@@ -76,12 +79,19 @@ jobs:
             build/ios_build.tar.gz
             coverage/html
 
-      #10 Upload to Google Drive
-      - name: Upload to Google Drive
+      #11 Send Email with Debug APK and Test Report
+      - name: Send Email
         if: success()
-        uses: adityak74/google-drive-upload-git-action@main
+        uses: dawidd6/action-send-mail@v3
         with:
-          credentials: ${{ secrets.DRIVE_CREDENTIALS }}
-          filename: build/app/outputs/flutter-apk/app-debug.apk
-          folderId: ${{ secrets.FOLDERID }}
-          overwrite: "true"
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "Flutter Build & Test Report"
+          body: "Please find the attached Debug APK and Test Report."
+          to: "krunalmkathikar1993@gmail.com"
+          from: "CI/CD Pipeline"
+          attachments: |
+            build/app/outputs/flutter-apk/app-debug.apk
+            coverage/html/index.html
