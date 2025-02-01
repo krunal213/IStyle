@@ -51,14 +51,24 @@ jobs:
         run: |
           genhtml coverage/lcov.info --output-directory coverage/html
 
-      #8 Build Debug APK and AAB (Only if tests pass)
+      #8 Upload Test Report to Google Drive (if tests fail)
+      - name: Upload Test Report to Google Drive
+        if: failure()
+        uses: adityak74/google-drive-upload-git-action@main
+        with:
+          credentials: ${{ secrets.DRIVE_CREDENTIALS }}
+          filename: coverage/html/index.html
+          folderId: ${{ secrets.FOLDERID }}
+          overwrite: "false"
+
+      #9 Build Debug APK and AAB (Only if tests pass)
       - name: Build Debug APK and AAB
         if: success()
         run: |
           flutter build apk --debug
           flutter build appbundle --debug
 
-      #9 Build Debug IPA (iOS Build)
+      #10 Build Debug IPA (iOS Build)
       - name: Build Debug IPA
         if: success()
         run: flutter build ios --debug --no-codesign
@@ -69,48 +79,30 @@ jobs:
           cd build
           tar -czf ios_build.tar.gz ios
 
-      #10 Upload Artifacts
-      - name: Upload Artifacts
+      #11 Upload to Google Drive
+      - name: Upload to Google Drive
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: adityak74/google-drive-upload-git-action@main
         with:
-          name: Debug Builds
-          path: |
-            build/app/outputs/flutter-apk/app-debug.apk
-            build/app/outputs/bundle/debug/app-debug.aab
-            build/ios_build.tar.gz
-            coverage/html
+          credentials: ${{ secrets.DRIVE_CREDENTIALS }}
+          filename: build/app/outputs/flutter-apk/app-debug.apk
+          folderId: ${{ secrets.FOLDERID }}
+          overwrite: "false"
 
-      #11 Send Email - Test Failure Report
-      - name: Send Email if Tests Fail
-        if: failure()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "Flutter Test Failure Report"
-          body: "Tests failed. Please find the attached test report."
-          to: "krunalmkathikar1993@gmail.com"
-          from: "CI/CD Pipeline"
-          attachments: |
-            coverage/html/index.html
-
-      #12 Send Email - Successful Build and Test Report
-      - name: Send Email if Tests Pass
+      - name: Upload AAB to Google Drive
         if: success()
-        uses: dawidd6/action-send-mail@v3
+        uses: adityak74/google-drive-upload-git-action@main
         with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "Flutter Build & Test Report"
-          body: "Build and tests were successful. Please find the attached Debug APK, iOS build, and Test Report."
-          to: "krunalmkathikar1993@gmail.com"
-          from: "CI/CD Pipeline"
-          attachments: |
-            build/app/outputs/flutter-apk/app-debug.apk
-            build/ios_build.tar.gz
-            coverage/html/index.html
+          credentials: ${{ secrets.DRIVE_CREDENTIALS }}
+          filename: build/app/outputs/bundle/debug/app-debug.aab
+          folderId: ${{ secrets.FOLDERID }}
+          overwrite: "false"
+
+      - name: Upload iOS Build to Google Drive
+        if: success()
+        uses: adityak74/google-drive-upload-git-action@main
+        with:
+          credentials: ${{ secrets.DRIVE_CREDENTIALS }}
+          filename: build/ios_build.tar.gz
+          folderId: ${{ secrets.FOLDERID }}
+          overwrite: "false"
