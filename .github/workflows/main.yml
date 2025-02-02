@@ -46,34 +46,41 @@ jobs:
         continue-on-error: true
         run: flutter test --coverage
 
-      #7 Generate HTML Test Report
-      - name: Generate HTML Test Report
-        run: |
-          genhtml coverage/lcov.info --output-directory coverage/html
+  build_artifacts:
+    name: Build & Upload Artifacts
+    runs-on: macos-latest
+    if: success()
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      #8 Build Debug APK and AAB (Only if tests pass)
+      - name: Set Up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.2'
+          channel: 'stable'
+
+      - name: Install Dependencies
+        run: flutter pub get
+
       - name: Build Debug APK and AAB
-        if: success()
         run: |
           flutter build apk --debug
           flutter build appbundle --debug
 
-      #9 Build Debug IPA (iOS Build)
-      - name: Build Debug IPA
-        if: success()
+      - name: Build Debug IPA (iOS Build)
         run: flutter build ios --debug --no-codesign
 
-      #10 Compress Archives and IPAs
       - name: Compress Archives and IPAs
-        if: success()
         run: |
           cd build
           tar -czf ios_build.tar.gz ios
 
-      #11 Upload Artifacts if tests fail
-      - name: Upload Coverage Artifacts (on failure)
-        if: failure()
+      - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Coverage Report
-          path: coverage/html
+          name: Build Artifacts
+          path: |
+            build/app/outputs/flutter-apk/app-debug.apk
+            build/app/outputs/bundle/debug/app-debug.aab
+            build/ios_build.tar.gz
