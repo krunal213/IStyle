@@ -60,39 +60,6 @@ jobs:
         run: |
           genhtml coverage/lcov.info --output-directory coverage/html
 
-      # 9. Upload Test Report Artifact
-      - name: Upload Test Report Artifact
-        if: always()  # Ensure this happens even if previous steps fail
-        uses: actions/upload-artifact@v4
-        with:
-          name: Test Report  # Artifact name
-          path: coverage/html/
-
-  upload_test_report:
-    name: Upload Test Report
-    runs-on: ubuntu-latest
-    needs: build  # This job will only run after the 'build' job is successful
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      # 1. Download Test Report Artifact
-      - name: Download Test Report Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: Test Report  # Make sure this matches the artifact name from upload step
-          path: coverage/html/
-
-      # 2. Upload Test Report to Google Drive
-      - name: Upload Test Report to Google Drive
-        uses: adityak74/google-drive-upload-git-action@main
-        with:
-          credentials: ${{ secrets.CREDENTIALS }}
-          filename: coverage/html/index.html
-          folderId: ${{ secrets.FOLDERID }}
-          overwrite: "true"
-
   build_artifacts:
     name: Build & Upload Artifacts
     runs-on: macos-latest
