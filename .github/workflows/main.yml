@@ -110,8 +110,8 @@ jobs:
         uses: adityak74/google-drive-upload-git-action@main
         with:
           credentials_json: ${{ secrets.CREDENTIALS }}
-          folder_id: ${{ secrets.FOLDERID }}
-          filename: artifacts  # Fixed from `files` to `filename`
+          folderId: ${{ secrets.FOLDERID }}  # Fixed from `folder_id` to `folderId`
+          filename: artifacts
 
   upload_report_on_failure:
     name: Upload Coverage Report to Google Drive (Failure Case)
@@ -132,5 +132,5 @@ jobs:
         uses: adityak74/google-drive-upload-git-action@main
         with:
           credentials_json: ${{ secrets.CREDENTIALS }}
-          folder_id: ${{ secrets.FOLDERID }}
-          filename: coverage/lcov-report  # Fixed from `files` to `filename`
+          folderId: ${{ secrets.FOLDERID }}  # Fixed from `folder_id` to `folderId`
+          filename: coverage/lcov-report
