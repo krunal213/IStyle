@@ -109,8 +109,8 @@ jobs:
       - name: Upload Build Artifacts and Coverage Report to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
         with:
-          credentials_json: ${{ secrets.CREDENTIALS }}
-          folderId: ${{ secrets.FOLDERID }}  # Fixed from `folder_id` to `folderId`
+          credentials: ${{ secrets.CREDENTIALS }}  # Fixed from `credentials_json` to `credentials`
+          folderId: ${{ secrets.FOLDERID }}
           filename: artifacts
 
   upload_report_on_failure:
@@ -131,6 +131,6 @@ jobs:
       - name: Upload Coverage Report to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
         with:
-          credentials_json: ${{ secrets.CREDENTIALS }}
-          folderId: ${{ secrets.FOLDERID }}  # Fixed from `folder_id` to `folderId`
+          credentials: ${{ secrets.CREDENTIALS }}  # Fixed from `credentials_json` to `credentials`
+          folderId: ${{ secrets.FOLDERID }}
           filename: coverage/lcov-report
