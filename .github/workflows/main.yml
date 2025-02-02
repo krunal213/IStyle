@@ -54,7 +54,6 @@ jobs:
   upload_test_report:
     name: Upload Test Report
     runs-on: ubuntu-latest
-    if: failure()
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -62,10 +61,10 @@ jobs:
       - name: Upload Test Report to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
         with:
-          credentials: ${{ secrets.DRIVE_CREDENTIALS }}
+          credentials: ${{ secrets.CREDENTIALS }}
           filename: coverage/html/index.html
           folderId: ${{ secrets.FOLDERID }}
-          overwrite: "false"
+          overwrite: "true"
 
   build_artifacts:
     name: Build & Upload Artifacts
@@ -123,23 +122,23 @@ jobs:
       - name: Upload APK to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
         with:
-          credentials: ${{ secrets.DRIVE_CREDENTIALS }}
+          credentials: ${{ secrets.CREDENTIALS }}
           filename: build/app/outputs/flutter-apk/app-debug.apk
           folderId: ${{ secrets.FOLDERID }}
-          overwrite: "false"
+          overwrite: "true"
 
       - name: Upload AAB to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
         with:
-          credentials: ${{ secrets.DRIVE_CREDENTIALS }}
+          credentials: ${{ secrets.CREDENTIALS }}
           filename: build/app/outputs/bundle/debug/app-debug.aab
           folderId: ${{ secrets.FOLDERID }}
-          overwrite: "false"
+          overwrite: "true"
 
       - name: Upload iOS Build to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
         with:
-          credentials: ${{ secrets.DRIVE_CREDENTIALS }}
+          credentials: ${{ secrets.CREDENTIALS }}
           filename: build/ios_build.tar.gz
           folderId: ${{ secrets.FOLDERID }}
-          overwrite: "false"
+          overwrite: "true"
