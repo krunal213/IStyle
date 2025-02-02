@@ -46,14 +46,14 @@ jobs:
         continue-on-error: true
         run: flutter test --coverage
 
-      #7 Generate Coverage Report (both on pass and failure)
+      #7 Generate Coverage Report
       - name: Generate Coverage Report
         run: |
           genhtml coverage/lcov.info --output-directory=coverage/lcov-report
 
       #8 Upload Coverage Report as Separate Artifact (if tests fail)
       - name: Upload Test Coverage Report (Fail Case)
-        if: failure()  # Only run if tests fail
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: test-coverage-report
@@ -63,7 +63,7 @@ jobs:
     name: Build & Upload Artifacts
     runs-on: macos-latest
     needs: build
-    if: success()  # This job only runs if tests pass
+    if: success()
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -90,7 +90,7 @@ jobs:
           cd build
           tar -czf ios_build.tar.gz ios
 
-      #8 Merge and Upload Build Artifacts and Coverage Report (if tests pass)
+      # Upload build artifacts and coverage report to GitHub
       - name: Upload Build Artifacts with Coverage Report
         uses: actions/upload-artifact@v4
         with:
@@ -100,3 +100,28 @@ jobs:
             build/app/outputs/bundle/debug/app-debug.aab
             build/ios_build.tar.gz
             coverage/lcov-report
+
+      # Upload to Google Drive (Success Case)
+      - name: Upload Build Artifacts and Coverage Report to Google Drive
+        uses: adityak74/google-drive-upload-git-action@main
+        with:
+          credentials_json: ${{ secrets.CREDENTIALS }}
+          folder_id: ${{ secrets.FOLDERID }}
+          files: |
+            build/app/outputs/flutter-apk/app-debug.apk
+            build/app/outputs/bundle/debug/app-debug.aab
+            build/ios_build.tar.gz
+            coverage/lcov-report
+
+  upload_report_on_failure:
+    name: Upload Coverage Report to Google Drive (Failure Case)
+    runs-on: macos-latest
+    needs: build
+    if: failure()
+    steps:
+      - name: Upload Coverage Report to Google Drive
+        uses: adityak74/google-drive-upload-git-action@main
+        with:
+          credentials_json: ${{ secrets.CREDENTIALS }}
+          folder_id: ${{ secrets.FOLDERID }}
+          files: coverage/lcov-report
