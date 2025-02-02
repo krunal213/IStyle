@@ -64,16 +64,16 @@ jobs:
         run: flutter build ios --debug --no-codesign
 
       #10 Compress Archives and IPAs
+      - name: Compress Archives and IPAs
         if: success()
         run: |
           cd build
           tar -czf ios_build.tar.gz ios
 
       #11 Upload Artifacts if tests fail
-      - name: Upload Coverage Artifacts
+      - name: Upload Coverage Artifacts (on failure)
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: Coverage Report
-          path: |
-            coverage/html
+          path: coverage/html
