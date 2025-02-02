@@ -51,12 +51,26 @@ jobs:
         run: |
           genhtml coverage/lcov.info --output-directory coverage/html
 
+      #8 Upload Test Report Artifact
+      - name: Upload Test Report Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test Report
+          path: coverage/html/
+
   upload_test_report:
     name: Upload Test Report
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+
+      - name: Download Test Report Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Test Report
+          path: coverage/html/
 
       - name: Upload Test Report to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
