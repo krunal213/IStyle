@@ -113,11 +113,11 @@ jobs:
           cd ..
 
       - name: Upload Build-and-Coverage ZIP to Google Drive
-        uses: adityak74/google-drive-upload-git-action@main
+        uses: willo32/google-drive-upload-action@v1
         with:
           credentials: ${{ secrets.CREDENTIALS }}
-          folderId: ${{ secrets.FOLDERID }}
-          filename: Build-and-Coverage.zip
+          parent_folder_id: ${{ secrets.FOLDERID }}
+          target: Build-and-Coverage.zip
 
   upload_report_on_failure:
     name: Upload Coverage Report to Google Drive (Failure Case)
@@ -134,9 +134,9 @@ jobs:
           name: test-coverage-report
           path: coverage/lcov-report
 
-      - name: Upload Coverage Report to Google Drive
-        uses: adityak74/google-drive-upload-git-action@main
+      - name: Upload a file to Google Drive
+        uses: willo32/google-drive-upload-action@v1
         with:
+          target: coverage/lcov-report
           credentials: ${{ secrets.CREDENTIALS }}
-          folderId: ${{ secrets.FOLDERID }}
-          filename: coverage/lcov-report
+          parent_folder_id: ${{ secrets.FOLDERID }}     
