@@ -54,7 +54,7 @@ jobs:
       #8 Upload Coverage Report as Separate Artifact (if tests fail)
       - name: Upload Test Coverage Report (Fail Case)
         if: failure()  # Only run if tests fail
-        uses: actions/upload-artifact@latest
+        uses: actions/upload-artifact@v4
         with:
           name: test-coverage-report
           path: coverage/lcov-report
@@ -92,7 +92,7 @@ jobs:
 
       #8 Merge and Upload Build Artifacts and Coverage Report (if tests pass)
       - name: Upload Build Artifacts with Coverage Report
-        uses: actions/upload-artifact@latest
+        uses: actions/upload-artifact@v4
         with:
           name: Build and Coverage Artifacts
           path: |
