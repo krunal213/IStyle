@@ -14,137 +14,66 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      # 1. Checkout Repository
+      #1 Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # 2. Setup Java
+      #2 Setup Java
       - name: Set Up Java
         uses: actions/setup-java@v3.12.0
         with:
           distribution: 'oracle'
           java-version: '17'
 
-      # 3. Setup Flutter
+      #3 Setup Flutter
       - name: Set Up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.2'
           channel: 'stable'
 
-      # 4. Install Dependencies
+      #4 Install Dependencies
       - name: Install Dependencies
         run: flutter pub get
 
-      # 5. Install lcov
+      #5 Install lcov
       - name: Install lcov
         run: brew install lcov
 
-      # 6. Run Tests
+      #6 Run Tests
       - name: Run Tests
         id: test
         continue-on-error: true
         run: flutter test --coverage
 
-      # 7. Check if coverage directory exists before uploading
-      - name: Check Coverage Report
-        run: |
-          if [ ! -d "coverage/html" ]; then
-            echo "Coverage report directory does not exist";
-            exit 1;
-          fi
-          echo "Coverage report directory exists";
-
-      # 8. Generate HTML Test Report
+      #7 Generate HTML Test Report
       - name: Generate HTML Test Report
         run: |
           genhtml coverage/lcov.info --output-directory coverage/html
 
-  build_artifacts:
-    name: Build & Upload Artifacts
-    runs-on: macos-latest
-    if: success()  # Only run if the previous jobs succeed
-    steps:
-      # 1. Checkout Repository
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      # 2. Set Up Flutter
-      - name: Set Up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.22.2'
-          channel: 'stable'
-
-      # 3. Install Dependencies
-      - name: Install Dependencies
-        run: flutter pub get
-
-      # 4. Build Debug APK and AAB
+      #8 Build Debug APK and AAB (Only if tests pass)
       - name: Build Debug APK and AAB
+        if: success()
         run: |
           flutter build apk --debug
           flutter build appbundle --debug
 
-      # 5. Build Debug IPA (iOS Build)
-      - name: Build Debug IPA (iOS Build)
+      #9 Build Debug IPA (iOS Build)
+      - name: Build Debug IPA
+        if: success()
         run: flutter build ios --debug --no-codesign
 
-      # 6. Compress Archives and IPAs
-      - name: Compress Archives and IPAs
+      #10 Compress Archives and IPAs
+        if: success()
         run: |
           cd build
           tar -czf ios_build.tar.gz ios
 
-      # 7. Upload Build Artifacts
-      - name: Upload Build Artifacts
+      #11 Upload Artifacts if tests fail
+      - name: Upload Coverage Artifacts
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: Build Artifacts
+          name: Coverage Report
           path: |
-            build/app/outputs/flutter-apk/app-debug.apk
-            build/app/outputs/bundle/debug/app-debug.aab
-            build/ios_build.tar.gz
-
-  upload_builds:
-    name: Upload Builds to Google Drive
-    runs-on: ubuntu-latest
-    needs: build_artifacts  # Runs after the 'build_artifacts' job
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      # 1. Download Build Artifacts
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: Build Artifacts
-          path: build/
-
-      # 2. Upload APK to Google Drive
-      - name: Upload APK to Google Drive
-        uses: adityak74/google-drive-upload-git-action@main
-        with:
-          credentials: ${{ secrets.CREDENTIALS }}
-          filename: build/app/outputs/flutter-apk/app-debug.apk
-          folderId: ${{ secrets.FOLDERID }}
-          overwrite: "true"
-
-      # 3. Upload AAB to Google Drive
-      - name: Upload AAB to Google Drive
-        uses: adityak74/google-drive-upload-git-action@main
-        with:
-          credentials: ${{ secrets.CREDENTIALS }}
-          filename: build/app/outputs/bundle/debug/app-debug.aab
-          folderId: ${{ secrets.FOLDERID }}
-          overwrite: "true"
-
-      # 4. Upload iOS Build to Google Drive
-      - name: Upload iOS Build to Google Drive
-        uses: adityak74/google-drive-upload-git-action@main
-        with:
-          credentials: ${{ secrets.CREDENTIALS }}
-          filename: build/ios_build.tar.gz
-          folderId: ${{ secrets.FOLDERID }}
-          overwrite: "true"
+            coverage/html
