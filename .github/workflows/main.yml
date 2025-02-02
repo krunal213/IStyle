@@ -51,113 +51,71 @@ jobs:
         run: |
           genhtml coverage/lcov.info --output-directory coverage/html
 
-      #8 Create Folder on Google Drive Based on Time (for Error Report if tests fail)
-      - name: Create Folder for Test Failure Report
-        if: failure()
-        run: |
-          FOLDER_NAME="error-report-$(date +'%Y-%m-%d_%H-%M-%S')"
-          FOLDER_ID=$(curl -X POST \
-            -L \
-            -H "Authorization: Bearer ${{ secrets.DRIVE_CREDENTIALS }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-                  "name": "'"$FOLDER_NAME"'",
-                  "mimeType": "application/vnd.google-apps.folder"
-                }' \
-            "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart" \
-            | jq -r '.id')
+  upload_test_report:
+    name: Upload Test Report
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-          echo "Created folder with ID: $FOLDER_ID"
-          echo "FOLDER_ID=$FOLDER_ID" >> $GITHUB_ENV
+      - name: Upload Test Report to Google Drive
+        uses: adityak74/google-drive-upload-git-action@main
+        with:
+          credentials: ${{ secrets.DRIVE_CREDENTIALS }}
+          filename: coverage/html/index.html
+          folderId: ${{ secrets.FOLDERID }}
+          overwrite: "false"
 
-      #9 Upload Test Failure Report to Google Drive
-      - name: Upload Test Failure Report to Google Drive
-        if: failure()
-        run: |
-          curl -X POST \
-            -L \
-            -H "Authorization: Bearer ${{ secrets.DRIVE_CREDENTIALS }}" \
-            -F "metadata={name : 'test_failure_report.html', parents : ['${{ env.FOLDER_ID }}']};type=application/json" \
-            -F "file=@coverage/html/index.html;type=application/octet-stream" \
-            "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart"
+  build_artifacts:
+    name: Build & Upload Artifacts
+    runs-on: macos-latest
+    if: success()
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      #10 Upload Test Log to Google Drive (Optional: to capture detailed error logs)
-      - name: Upload Test Log to Google Drive
-        if: failure()
-        run: |
-          curl -X POST \
-            -L \
-            -H "Authorization: Bearer ${{ secrets.DRIVE_CREDENTIALS }}" \
-            -F "metadata={name : 'test_log.txt', parents : ['${{ env.FOLDER_ID }}']};type=application/json" \
-            -F "file=@flutter_test_log.txt;type=application/octet-stream" \
-            "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart"
-
-      #11 Build Debug APK and AAB (Only if tests pass)
       - name: Build Debug APK and AAB
-        if: success()
         run: |
           flutter build apk --debug
           flutter build appbundle --debug
 
-      #12 Build Debug IPA (iOS Build)
-      - name: Build Debug IPA
-        if: success()
+      - name: Build Debug IPA (iOS Build)
         run: flutter build ios --debug --no-codesign
 
       - name: Compress Archives and IPAs
-        if: success()
         run: |
           cd build
           tar -czf ios_build.tar.gz ios
 
-      #13 Create Folder on Google Drive Based on Time (for main build files)
-      - name: Create Folder for Successful Build
-        if: success()
-        run: |
-          FOLDER_NAME="build-$(date +'%Y-%m-%d_%H-%M-%S')"
-          FOLDER_ID=$(curl -X POST \
-            -L \
-            -H "Authorization: Bearer ${{ secrets.DRIVE_CREDENTIALS }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-                  "name": "'"$FOLDER_NAME"'",
-                  "mimeType": "application/vnd.google-apps.folder"
-                }' \
-            "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart" \
-            | jq -r '.id')
+  upload_artifacts:
+    name: Upload Artifacts to Google Drive
+    runs-on: ubuntu-latest
+    needs: build_artifacts
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-          echo "Created folder with ID: $FOLDER_ID"
-          echo "FOLDER_ID=$FOLDER_ID" >> $GITHUB_ENV
-
-      #14 Upload APK to Google Drive
       - name: Upload APK to Google Drive
-        if: success()
-        run: |
-          curl -X POST \
-            -L \
-            -H "Authorization: Bearer ${{ secrets.DRIVE_CREDENTIALS }}" \
-            -F "metadata={name : 'app-debug.apk', parents : ['${{ env.FOLDER_ID }}']};type=application/json" \
-            -F "file=@build/app/outputs/flutter-apk/app-debug.apk;type=application/octet-stream" \
-            "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart"
+        uses: adityak74/google-drive-upload-git-action@main
+        with:
+          credentials: ${{ secrets.DRIVE_CREDENTIALS }}
+          filename: build/app/outputs/flutter-apk/app-debug.apk
+          folderId: ${{ secrets.FOLDERID }}
+          overwrite: "false"
 
-      #15 Upload AAB to Google Drive
       - name: Upload AAB to Google Drive
-        if: success()
-        run: |
-          curl -X POST \
-            -L \
-            -H "Authorization: Bearer ${{ secrets.DRIVE_CREDENTIALS }}" \
-            -F "metadata={name : 'app-debug.aab', parents : ['${{ env.FOLDER_ID }}']};type=application/json" \
-            -F "file=@build/app/outputs/bundle/debug/app-debug.aab;type=application/octet-stream" \
-            "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart"
+        uses: adityak74/google-drive-upload-git-action@main
+        with:
+          credentials: ${{ secrets.DRIVE_CREDENTIALS }}
+          filename: build/app/outputs/bundle/debug/app-debug.aab
+          folderId: ${{ secrets.FOLDERID }}
+          overwrite: "false"
 
-      #16 Upload iOS Build to Google Drive
       - name: Upload iOS Build to Google Drive
-        if: success()
-        run: |
-          curl -X POST \
-            -L \
-            -H "Authorization: Bearer ${{ secrets.DRIVE_CREDENTIALS }}" \
-            -F "metadata={name : 'ios_build.tar.gz', parents : ['${{ env.FOLDER_ID }}']};type=application/json" \
-            -F "file=@build/ios_build.tar.gz;type=application/octet-stream" \
-            "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart"
+        uses: adityak74/google-drive-upload-git-action@main
+        with:
+          credentials: ${{ secrets.DRIVE_CREDENTIALS }}
+          filename: build/ios_build.tar.gz
+          folderId: ${{ secrets.FOLDERID }}
+          overwrite: "false"
