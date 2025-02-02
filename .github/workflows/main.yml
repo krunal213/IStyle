@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - '**'  # This means any branch
+
 jobs:
   build:
     name: Build & Run Tests
@@ -33,7 +34,9 @@ jobs:
         run: dart run dart_code_linter:metrics analyze . --reporter=html --output-directory=./html_reports
         continue-on-error: false  # Ensure the build stops if lint fails
 
-      # Conditional step based on linter result
+      - name: Install lcov
+        run: brew install lcov
+
       - name: Run Tests
         id: test
         if: success()  # This ensures tests run only if linter passes
