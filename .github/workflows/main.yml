@@ -1,12 +1,9 @@
 name: "Build"
 
 on:
-  pull_request:
-    branches:
-      - main
   push:
     branches:
-      - main
+      - '**'  # Run on all branches
 
 jobs:
   build:
@@ -32,29 +29,33 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Run DCL
+        run: dcl analyze --reporter=github lib
+
+      #- name: Run dart_code_linter
+      #  id: dart_code_linter
+      #  run: dart run dart_code_linter:metrics analyze . --reporter=html --output-directory=./html_reports
+      #  continue-on-error: false  # Stop build if linting fails
+
       - name: Install lcov
         run: brew install lcov
 
       - name: Run Tests
         id: test
+        #if: success()  # Run only if linting passes
         run: flutter test --coverage
 
       - name: Generate Coverage Report
+        #if: success()  # Generate only if tests pass
         run: |
           genhtml coverage/lcov.info --output-directory=coverage/lcov-report
 
-      - name: Upload Test Coverage Report (Fail Case)
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-coverage-report
-          path: coverage/lcov-report
-
-  build_artifacts:
-    name: Build & Upload Artifacts
+  build_and_upload_on_success:
+    name: Build & Upload Artifacts (Success)
     runs-on: macos-latest
     needs: build
     if: success()
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -68,75 +69,72 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Build Debug APK and AAB
+      - name: Build Debug APK, AAB, and IPA
         run: |
           flutter build apk --debug
           flutter build appbundle --debug
+          flutter build ios --debug --no-codesign
 
-      - name: Build Debug IPA (iOS Build)
-        run: flutter build ios --debug --no-codesign
-
-      - name: Compress Archives and IPAs
+      - name: Compress iOS Build Directory
         run: |
           cd build
           tar -czf ios_build.tar.gz ios
 
-      - name: Upload Build Artifacts with Coverage Report
+      - name: Generate Artifact Version
+        id: version
+        run: echo "VERSION=$(git rev-parse --short HEAD)-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
+      - name: Upload Build Artifacts and Coverage Report
         uses: actions/upload-artifact@v4
         with:
-          name: Build-and-Coverage
+          name: Build-and-Coverage-${{ env.VERSION }}
           path: |
             build/app/outputs/flutter-apk/app-debug.apk
             build/app/outputs/bundle/debug/app-debug.aab
             build/ios_build.tar.gz
             coverage/lcov-report
 
-  upload_to_drive:
-    name: Upload Build-and-Coverage ZIP to Google Drive
+  upload_build_and_coverage:
+    name: Upload Build and Coverage to Google Drive
     runs-on: ubuntu-latest
-    needs: build_artifacts
-    if: success()
+    needs: build_and_upload_on_success
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Download Build & Coverage Artifacts
+      - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: Build-and-Coverage
+          name: Build-and-Coverage-${{ env.VERSION }}
           path: artifacts
 
-      - name: Compress Build-and-Coverage to ZIP
-        run: |
-          cd artifacts
-          zip -r ../Build-and-Coverage.zip .
-          cd ..
-
-      - name: Upload Build-and-Coverage ZIP to Google Drive
-        uses: willo32/google-drive-upload-action@v1
+      - name: Upload Build ZIP to Google Drive
+        uses: adityak74/google-drive-upload-git-action@main
         with:
           credentials: ${{ secrets.CREDENTIALS }}
-          parent_folder_id: ${{ secrets.FOLDERID }}
-          target: Build-and-Coverage.zip
+          folderId: ${{ secrets.FOLDERID }}
+          filename: Build-and-Coverage-${{ env.VERSION }}.zip
 
-  upload_report_on_failure:
-    name: Upload Coverage Report to Google Drive (Failure Case)
+      - name: Upload Coverage Report ZIP to Google Drive
+        uses: adityak74/google-drive-upload-git-action@main
+        with:
+          credentials: ${{ secrets.CREDENTIALS }}
+          folderId: ${{ secrets.FOLDERID }}
+          filename: Coverage-${{ env.VERSION }}.zip
+
+  build_and_upload_on_failure:
+    name: Upload Coverage Report on Failure
     runs-on: ubuntu-latest
     needs: build
     if: failure()
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Download Test Coverage Report
-        uses: actions/download-artifact@v4
-        with:
-          name: test-coverage-report
-          path: coverage/lcov-report
+      - name: Generate Artifact Version
+        id: version
+        run: echo "VERSION=$(git rev-parse --short HEAD)-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
-      - name: Upload a file to Google Drive
-        uses: willo32/google-drive-upload-action@v1
+      - name: Upload Coverage Report as Artifact
+        uses: actions/upload-artifact@v4
         with:
-          target: coverage/lcov-report
-          credentials: ${{ secrets.CREDENTIALS }}
-          parent_folder_id: ${{ secrets.FOLDERID }}     
+          name: Coverage-${{ env.VERSION }}
+          path: coverage/lcov-report
