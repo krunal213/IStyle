@@ -4,16 +4,6 @@ on:
   push:
     branches:
       - '**'  # This means any branch
-    # Exclude main branch
-    branches-ignore:
-      - 'main'
-  pull_request:
-    branches:
-      - '**'  # This means pull requests targeting any branch
-    # Exclude main branch
-    branches-ignore:
-      - 'main'
-
 jobs:
   build:
     name: Build & Run Tests
