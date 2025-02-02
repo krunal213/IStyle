@@ -85,7 +85,7 @@ jobs:
       - name: Upload Build Artifacts with Coverage Report
         uses: actions/upload-artifact@v4
         with:
-          name: Build and Coverage Artifacts
+          name: Build-and-Coverage
           path: |
             build/app/outputs/flutter-apk/app-debug.apk
             build/app/outputs/bundle/debug/app-debug.aab
@@ -103,7 +103,7 @@ jobs:
       - name: Download Build & Coverage Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: Build and Coverage Artifacts
+          name: Build-and-Coverage
           path: artifacts
 
       - name: Upload Build Artifacts and Coverage Report to Google Drive
@@ -111,7 +111,7 @@ jobs:
         with:
           credentials_json: ${{ secrets.CREDENTIALS }}
           folder_id: ${{ secrets.FOLDERID }}
-          files: artifacts/*
+          filename: artifacts  # Fixed from `files` to `filename`
 
   upload_report_on_failure:
     name: Upload Coverage Report to Google Drive (Failure Case)
@@ -133,4 +133,4 @@ jobs:
         with:
           credentials_json: ${{ secrets.CREDENTIALS }}
           folder_id: ${{ secrets.FOLDERID }}
-          files: coverage/lcov-report
+          filename: coverage/lcov-report  # Fixed from `files` to `filename`
