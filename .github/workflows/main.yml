@@ -44,9 +44,6 @@ jobs:
         id: set_version
         run: echo "VERSION=$(git rev-parse --short HEAD)-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
-      - name: Debug VERSION in Build Job
-        run: echo "VERSION=${{ env.VERSION }}"
-
   build_and_upload_artifact_on_success:
     name: Build & Upload Artifacts (Success)
     runs-on: macos-latest
@@ -79,13 +76,10 @@ jobs:
           cd build
           tar -czf ios_build.tar.gz ios
 
-      - name: Debug VERSION Before Upload
-        run: echo "VERSION=${{ env.VERSION }}"
-
       - name: Upload Build Artifacts and Coverage Report
         uses: actions/upload-artifact@v4
         with:
-          name: Build-and-Coverage-${{ env.VERSION }}
+          name: Build-and-Coverage-${{ steps.set_version.outputs.VERSION }}
           path: |
             build/app/outputs/flutter-apk/app-debug.apk
             build/app/outputs/bundle/debug/app-debug.aab
