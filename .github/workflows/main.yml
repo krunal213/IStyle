@@ -44,6 +44,9 @@ jobs:
         id: set_version
         run: echo "VERSION=$(git rev-parse --short HEAD)-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
+      - name: Debug VERSION in Build Job
+        run: echo "VERSION=${{ env.VERSION }}"
+
   build_and_upload_artifact_on_success:
     name: Build & Upload Artifacts (Success)
     runs-on: macos-latest
@@ -76,7 +79,7 @@ jobs:
           cd build
           tar -czf ios_build.tar.gz ios
 
-      - name: Debug Version Before Upload
+      - name: Debug VERSION Before Upload
         run: echo "VERSION=${{ env.VERSION }}"
 
       - name: Upload Build Artifacts and Coverage Report
@@ -97,7 +100,7 @@ jobs:
     env:
       VERSION: ${{ needs.build_and_upload_artifact_on_success.outputs.VERSION }}
     steps:
-      - name: Debug Version Before Download
+      - name: Debug VERSION Before Download
         run: echo "VERSION=${{ env.VERSION }}"
 
       - name: Download Build Artifacts
@@ -105,6 +108,9 @@ jobs:
         with:
           name: Build-and-Coverage-${{ env.VERSION }}
           path: artifacts
+
+      - name: Debug Artifact File Name
+        run: echo "Artifact file name: Build-and-Coverage-${{ env.VERSION }}.zip"
 
       - name: Upload Build ZIP to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
@@ -146,7 +152,7 @@ jobs:
     env:
       VERSION: ${{ needs.build_and_upload_on_failure.outputs.VERSION }}
     steps:
-      - name: Debug Version Before Download (Failure)
+      - name: Debug VERSION Before Download (Failure)
         run: echo "VERSION=${{ env.VERSION }}"
 
       - name: Download Coverage Report Artifact
