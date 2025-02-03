@@ -76,6 +76,9 @@ jobs:
         id: set_version
         run: echo "VERSION=$(git rev-parse --short HEAD)-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
+      - name: Debug Version Before Upload
+        run: echo "VERSION=${{ env.VERSION }}"
+
       - name: Upload Build Artifacts and Coverage Report
         uses: actions/upload-artifact@v4
         with:
@@ -94,6 +97,9 @@ jobs:
     env:
       VERSION: ${{ needs.build_and_upload_artifact_on_success.outputs.VERSION }}
     steps:
+      - name: Debug Version Before Download
+        run: echo "VERSION=${{ env.VERSION }}"
+
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
@@ -140,6 +146,9 @@ jobs:
     env:
       VERSION: ${{ needs.build_and_upload_on_failure.outputs.VERSION }}
     steps:
+      - name: Debug Version Before Download (Failure)
+        run: echo "VERSION=${{ env.VERSION }}"
+
       - name: Download Coverage Report Artifact
         uses: actions/download-artifact@v4
         with:
