@@ -91,6 +91,11 @@ jobs:
           name: Build-and-Coverage
           path: artifacts
 
+      - name: Create Build-and-Coverage ZIP
+        run: |
+          cd artifacts
+          zip -r Build-and-Coverage.zip .
+
       - name: Upload Build ZIP to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
         with:
