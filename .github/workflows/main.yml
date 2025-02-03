@@ -40,10 +40,6 @@ jobs:
         run: |
           genhtml coverage/lcov.info --output-directory=coverage/lcov-report
 
-      - name: Generate Artifact Version
-        id: set_version
-        run: echo "VERSION=$(git rev-parse --short HEAD)-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
-
   build_and_upload_artifact_on_success:
     name: Build & Upload Artifacts (Success)
     runs-on: macos-latest
@@ -76,10 +72,14 @@ jobs:
           cd build
           tar -czf ios_build.tar.gz ios
 
+      - name: Generate Artifact Version
+        id: set_version
+        run: echo "VERSION=$(git rev-parse --short HEAD)-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
       - name: Upload Build Artifacts and Coverage Report
         uses: actions/upload-artifact@v4
         with:
-          name: Build-and-Coverage-${{ steps.set_version.outputs.VERSION }}
+          name: Build-and-Coverage-${{ env.VERSION }}
           path: |
             build/app/outputs/flutter-apk/app-debug.apk
             build/app/outputs/bundle/debug/app-debug.aab
@@ -94,24 +94,22 @@ jobs:
     env:
       VERSION: ${{ needs.build_and_upload_artifact_on_success.outputs.VERSION }}
     steps:
-      - name: Debug VERSION Before Download
-        run: echo "VERSION=${{ env.VERSION }}"
+      # Debug step to check if VERSION is correctly populated
+      - name: Debug Artifact File Name
+        run: echo "Artifact file name: Build-and-Coverage-${{ needs.build_and_upload_artifact_on_success.outputs.VERSION }}.zip"
 
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: Build-and-Coverage-${{ env.VERSION }}
+          name: Build-and-Coverage-${{ needs.build_and_upload_artifact_on_success.outputs.VERSION }}
           path: artifacts
-
-      - name: Debug Artifact File Name
-        run: echo "Artifact file name: Build-and-Coverage-${{ env.VERSION }}.zip"
 
       - name: Upload Build ZIP to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
         with:
           credentials: ${{ secrets.CREDENTIALS }}
           folderId: ${{ secrets.FOLDERID }}
-          filename: Build-and-Coverage-${{ env.VERSION }}.zip
+          filename: Build-and-Coverage-${{ needs.build_and_upload_artifact_on_success.outputs.VERSION }}.zip
 
   build_and_upload_on_failure:
     name: Upload Coverage Report on Failure
@@ -146,9 +144,6 @@ jobs:
     env:
       VERSION: ${{ needs.build_and_upload_on_failure.outputs.VERSION }}
     steps:
-      - name: Debug VERSION Before Download (Failure)
-        run: echo "VERSION=${{ env.VERSION }}"
-
       - name: Download Coverage Report Artifact
         uses: actions/download-artifact@v4
         with:
