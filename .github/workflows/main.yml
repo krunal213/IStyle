@@ -30,6 +30,7 @@ jobs:
         run: flutter pub get
 
       - name: Run DCL
+        id: dart_code_linter
         run: dcl analyze --reporter=github lib
 
       - name: Install lcov
