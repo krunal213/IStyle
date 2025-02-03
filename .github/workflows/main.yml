@@ -29,9 +29,6 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Run DCL
-        run: dcl analyze --reporter=github lib
-
       - name: Install lcov
         run: brew install lcov
 
