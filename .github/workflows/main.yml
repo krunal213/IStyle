@@ -164,7 +164,7 @@ jobs:
       - name: Create ZIP for Coverage Report
         run: |
           cd artifacts
-          zip -r Coverage.zip .
+          zip -r Coverage.zip
 
       - name: Upload Coverage Report ZIP to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
