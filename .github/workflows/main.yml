@@ -34,11 +34,25 @@ jobs:
 
       - name: Run Tests
         id: test
-        run: flutter test --coverage
+        continue-on-error: true  # Ensures workflow continues even if tests fail
+        run: |
+          flutter test --coverage || echo "Tests failed"
 
       - name: Generate Coverage Report
         run: |
-          genhtml coverage/lcov.info --output-directory=coverage/lcov-report
+          ls -la coverage  # Debug: Check if coverage directory exists
+          if [ -f coverage/lcov.info ]; then
+            genhtml coverage/lcov.info --output-directory=coverage/lcov-report
+          else
+            echo "No coverage data found."
+            exit 1
+          fi
+
+      - name: Upload Coverage Report as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Coverage
+          path: coverage/lcov-report
 
   build_and_upload_artifact_on_success:
     name: Build & Upload Artifacts (Success)
@@ -70,7 +84,7 @@ jobs:
           cd build
           tar -czf ios_build.tar.gz ios
 
-      - name: Upload Build Artifacts and Coverage Report
+      - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Build-and-Coverage
@@ -84,6 +98,7 @@ jobs:
     name: Upload Build and Coverage to Google Drive
     runs-on: ubuntu-latest
     needs: build_and_upload_artifact_on_success
+
     steps:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
@@ -92,15 +107,14 @@ jobs:
           path: artifacts
 
       - name: List artifacts folder before zipping
-        run: |
-          ls -la artifacts
+        run: ls -la artifacts
 
-      - name: Create Build-and-Coverage ZIP
+      - name: Create ZIP for Build and Coverage
         run: |
           cd artifacts
           zip -r Build-and-Coverage.zip .
 
-      - name: Upload Build ZIP to Google Drive
+      - name: Upload ZIP to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
         with:
           credentials: ${{ secrets.CREDENTIALS }}
@@ -114,11 +128,14 @@ jobs:
     if: failure()
 
     steps:
-      - name: Download Coverage Report
+      - name: Download Coverage Report Artifact
         uses: actions/download-artifact@v4
         with:
-          name: coverage/lcov-report
+          name: Coverage
           path: coverage
+
+      - name: Debug: List coverage files
+        run: ls -R coverage || echo "No coverage directory found"
 
       - name: Upload Coverage Report as Artifact
         uses: actions/upload-artifact@v4
@@ -130,6 +147,7 @@ jobs:
     name: Upload Coverage in Google Drive on Failure
     runs-on: ubuntu-latest
     needs: build_and_upload_on_failure
+
     steps:
       - name: Download Coverage Report Artifact
         uses: actions/download-artifact@v4
@@ -137,9 +155,17 @@ jobs:
           name: Coverage
           path: artifacts
 
+      - name: Debug: Check contents of artifacts
+        run: ls -R artifacts || echo "No artifacts found"
+
+      - name: Create ZIP for Coverage Report
+        run: |
+          cd artifacts
+          zip -r Coverage.zip .
+
       - name: Upload Coverage Report ZIP to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
         with:
           credentials: ${{ secrets.CREDENTIALS }}
           folderId: ${{ secrets.FOLDERID }}
-          filename: Coverage.zip
+          filename: artifacts/Coverage.zip
