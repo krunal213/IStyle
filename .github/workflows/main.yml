@@ -96,7 +96,7 @@ jobs:
     steps:
       # Debug step to check if VERSION is correctly populated
       - name: Debug Artifact File Name
-        run: echo "Artifact file name: Build-and-Coverage-${{ needs.build_and_upload_artifact_on_success.outputs.VERSION }}.zip"
+        run: echo "Artifact file name == Build-and-Coverage-${{ needs.build_and_upload_artifact_on_success.outputs.VERSION }}.zip"
 
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
