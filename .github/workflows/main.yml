@@ -91,7 +91,7 @@ jobs:
           name: Build-and-Coverage
           path: artifacts
 
-      - name: List artifacts folder
+      - name: List artifacts folder before zipping
         run: |
           ls -la artifacts
 
@@ -100,16 +100,12 @@ jobs:
           cd artifacts
           zip -r Build-and-Coverage.zip .
 
-      - name: List artifacts after zipping
-        run: |
-          ls -la artifacts
-
       - name: Upload Build ZIP to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
         with:
           credentials: ${{ secrets.CREDENTIALS }}
           folderId: ${{ secrets.FOLDERID }}
-          filename: artifacts/Build-and-Coverage.zip  # Ensure this path is correct
+          filename: artifacts/Build-and-Coverage.zip
 
   build_and_upload_on_failure:
     name: Upload Coverage Report on Failure
