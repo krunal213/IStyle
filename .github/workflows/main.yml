@@ -29,15 +29,10 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Install `dart_code_linter` (dcl)
-        run: dart pub global activate dart_code_linter
-
-      - name: Add `dcl` to PATH
-        run: echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
-
-      - name: Run DCL
+      - name: Run dart_code_linter
         id: dart_code_linter
-        run: dcl analyze --reporter=github lib
+        run: dart run dart_code_linter:metrics analyze . --reporter=html --output-directory=./html_reports
+        continue-on-error: false  # Stop build if linting fails
 
       - name: Install lcov
         run: brew install lcov
