@@ -48,7 +48,7 @@ jobs:
             touch coverage/lcov-report/index.html
           fi
 
-      - name: Debug: List Coverage Files
+      - name: Debug List Coverage Files
         run: ls -R coverage || echo "No coverage directory found"
 
       - name: Upload Coverage Report as Artifact
