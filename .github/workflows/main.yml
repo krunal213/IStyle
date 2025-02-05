@@ -24,36 +24,28 @@ jobs:
       - name: Install dependencies
         run: |
           flutter pub get
+          dart pub global activate melos
+
+      - name: Melos Bootstrap
+        run: melos bs
 
       - name: Install Allure Commandline
         run: |
           brew install allure
 
-      # Melos Bootstrap
-      - name: Melos Bootstrap
-        run: melos bs
-
-      # Install necessary dependencies using Melos
       - name: Install dependencies with Melos
         run: melos allures:install
 
-      # Generate project dependencies using Melos
       - name: Generate dependencies with Melos
         run: melos generate
 
-      # Analyze Dart project source
+      # Consider passing '--fatal-infos' for stricter analysis.
       - name: Analyze project source
         run: dart analyze
 
-      # Run tests using Melos (or flutter test if needed)
       - name: Run tests
         continue-on-error: true
         run: melos test
-
-      - name: Run tests and generate Allure report
-        run: |
-          dart run test_reporter -- flutter test
-          allure serve
 
       - name: Aggregate results
         run: |
@@ -63,9 +55,18 @@ jobs:
           mv allure-results-tmp allure-results
           zip -r allure-results.zip allure-results/
 
-      # Upload Allure report as an artifact
       - name: Upload Allure report as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
           path: allure-results.zip
+
+      - name: Publish Allure report to GitHub Pages
+        uses: simple-elf/allure-report-action@master
+        if: always()
+        id: allure-report
+        with:
+          gh_pages: gh-pages
+          allure_results: allure-results
+          allure_report: allure-report
+          allure_history: allure-history
