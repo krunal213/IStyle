@@ -41,7 +41,7 @@ jobs:
         continue-on-error: false  # Ensures the workflow stops if report generation fails
 
       - name: Upload Allure Report as Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: allure-report
           path: allure-report
