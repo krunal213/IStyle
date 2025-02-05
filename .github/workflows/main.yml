@@ -1,4 +1,4 @@
-name: Flutter Test and Allure Report
+name: Flutter Test and Allure Report (macOS)
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   test-report:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - name: Checkout Repository
@@ -30,8 +30,8 @@ jobs:
 
       - name: Install Allure
         run: |
-          sudo apt update
-          sudo apt install -y allure
+          brew update
+          brew install allure
 
       - name: Generate Allure Report
         run: allure generate --clean
