@@ -1,0 +1,32 @@
+{
+  "id": "f5efba94-6c6c-4587-84f5-914bc3d797d8",
+  "historyId": "9c95a18a-fa8c-472a-b7cf-30d54ca947b3",
+  "start": 1738765254803,
+  "stop": 1738765255185,
+  "name": "When Splash Screen Open",
+  "description": null,
+  "status": "broken",
+  "links": [],
+  "labels": [
+    {
+      "name": "parentSuite",
+      "value": "test/splash_widget_test.dart"
+    },
+    {
+      "name": "package",
+      "value": "iStyle"
+    },
+    {
+      "name": "language",
+      "value": "dart"
+    }
+  ],
+  "statusDetails": {
+    "flaky": false,
+    "known": false,
+    "muted": false,
+    "message": "Test failed. See exception logs above.\nThe test description was: When Splash Screen Open",
+    "trace": ""
+  },
+  "attachments": []
+}

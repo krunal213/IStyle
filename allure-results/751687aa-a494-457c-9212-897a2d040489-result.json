@@ -1,0 +1,32 @@
+{
+  "id": "751687aa-a494-457c-9212-897a2d040489",
+  "historyId": "84901411-b548-4e3e-973c-03b4c1ca99f8",
+  "start": 1738765170813,
+  "stop": 1738765170836,
+  "name": "Number matched",
+  "description": null,
+  "status": "failed",
+  "links": [],
+  "labels": [
+    {
+      "name": "parentSuite",
+      "value": "test/unit_test.dart"
+    },
+    {
+      "name": "package",
+      "value": "iStyle"
+    },
+    {
+      "name": "language",
+      "value": "dart"
+    }
+  ],
+  "statusDetails": {
+    "flaky": false,
+    "known": false,
+    "muted": false,
+    "message": "Expected: <2>\n  Actual: <1>\n",
+    "trace": "package:matcher                                     expect\npackage:flutter_test/src/widget_tester.dart 474:18  expect\ntest/unit_test.dart 6:5                             main.<fn>\n"
+  },
+  "attachments": []
+}
