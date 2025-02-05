@@ -18,7 +18,7 @@ void main() {
     ));
 
     Finder image_widget_background_finder = find.byKey(Key("image_widget_background"));
-    expect(null, findsOneWidget);
+    expect(image_widget_background_finder, findsOneWidget);
     final image_widget_background = tester.widget<Image>(image_widget_background_finder);
     expect(image_widget_background.image, isA<AssetImage>());
     expect((image_widget_background.image as AssetImage).assetName, 'assets/images/ic_welcome_background.png');
