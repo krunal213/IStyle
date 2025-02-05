@@ -13,31 +13,47 @@ jobs:
     runs-on: macos-latest
 
     steps:
+      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Step 2: Set up Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.2'
 
+      # Step 3: Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
+      # Step 4: Install Allure CLI (for macOS)
       - name: Install Allure CLI
         run: |
           brew install allure
 
+      # Step 5: Run Flutter tests
       - name: Run Flutter tests
         run: flutter test
 
+      # Step 6: Generate Allure report
       - name: Generate Allure report
         run: |
-          dart run test_reporter -- flutter test
-          allure generate --clean allure-results
+          rm -rf allure-report  # Clean up any previous reports
+          dart run test_reporter -- flutter test  # Run tests with the reporter
+          allure generate --clean allure-results --output allure-report  # Generate the Allure report
 
-      - name: Upload Allure report to GitHub
-        uses: actions/upload-artifact@v4
+      # Step 7: Check generated report files for debugging (optional, you can remove this later)
+      - name: Verify Allure report contents
+        run: |
+          echo "Contents of allure-results directory:"
+          ls -la allure-results
+          echo "Contents of allure-report directory:"
+          ls -la allure-report
+
+      # Step 8: Upload Allure report as artifact
+      - name: Upload Allure report as artifact
+        uses: actions/upload-artifact@v3
         with:
           name: allure-report
           path: allure-report
