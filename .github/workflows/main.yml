@@ -3,10 +3,10 @@ name: Flutter Test and Allure Report
 on:
   push:
     branches:
-      - main
+      - '**'
   pull_request:
     branches:
-      - main
+      - '**'
 
 jobs:
   test-report:
@@ -16,11 +16,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Flutter
+      - name: Set Up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: stable
-          cache: true
+          flutter-version: '3.22.2'
+          channel: 'stable'
 
       - name: Install Dependencies
         run: flutter pub get
