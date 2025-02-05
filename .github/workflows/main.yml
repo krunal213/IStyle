@@ -3,53 +3,35 @@ name: Flutter CI
 on:
   push:
     branches:
-      - '**'  # Run on all branches
+      - '*'  # This triggers the workflow on any branch
+  pull_request:
+    branches:
+      - '*'  # This also triggers on PRs for any branch
 
 jobs:
-  build:
+  test:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.22.2'
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.7.0'
 
-      - name: Install Dependencies
-        run: |
-          flutter pub get
+    - name: Install dependencies
+      run: |
+        flutter pub get
 
-      - name: Run Flutter Tests
-        run: |
-          flutter test --coverage
-        continue-on-error: false  # Ensures the workflow stops if tests fail
+    - name: Run tests and generate Allure report
+      run: |
+        dart run test_reporter -- flutter test
+        allure serve
 
-      - name: Install Allure Commandline
-        run: |
-          brew install allure
-        continue-on-error: false  # Ensures the workflow stops if installation fails
-
-      - name: Convert Coverage to JUnit Format
-        run: |
-          # You can use a tool or custom script here to convert coverage to JUnit XML
-          # Example using a hypothetical package or script:
-          # flutter pub global activate flutter_junit_reporter
-          # flutter pub global run flutter_junit_reporter --coverage coverage/lcov-report.html --output junit_report
-          
-          # Replace with your script or conversion logic
-          echo "Converting coverage report to JUnit format..."
-
-      - name: Generate Allure Report
-        run: |
-          allure generate junit_report --clean -o allure-report
-        continue-on-error: false  # Ensures the workflow stops if report generation fails
-
-      - name: Upload Allure Report as Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-report
-          path: allure-report
-        continue-on-error: false  # Ensures the workflow stops if artifact upload fails
+    - name: Upload Allure report as an artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: allure-report
+        path: allure-report
