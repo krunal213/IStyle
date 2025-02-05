@@ -28,10 +28,15 @@ jobs:
       - name: Run Tests with Custom Reporter
         run: dart run test_reporter -- flutter test
 
-      - name: Install Allure (Linux)
+      - name: Install Homebrew (Linux)
         run: |
-          sudo apt update
-          sudo apt install -y allure  # Install Allure via apt (Linux)
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          export PATH="/home/runner/.linuxbrew/bin:$PATH"  # Add Homebrew to the path for the current session
+
+      - name: Install Allure via Homebrew
+        run: |
+          brew update
+          brew install allure  # Install Allure using Homebrew
 
       - name: Verify Allure Installation
         run: allure --version  # Verify if Allure was installed successfully
