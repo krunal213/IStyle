@@ -31,7 +31,8 @@ jobs:
       - name: Install Homebrew (Linux)
         run: |
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-          export PATH="/home/runner/.linuxbrew/bin:$PATH"  # Add Homebrew to the path for the current session
+          echo 'eval $(/home/runner/.linuxbrew/bin/brew shellenv)' >> ~/.bashrc
+          eval $(/home/runner/.linuxbrew/bin/brew shellenv)  # Ensure Homebrew is in PATH
 
       - name: Install Allure via Homebrew
         run: |
