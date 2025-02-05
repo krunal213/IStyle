@@ -13,29 +13,59 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      with: 
-        flutter-version: '3.22.2'
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with: 
+          flutter-version: '3.22.2'
 
-    - name: Install dependencies
-      run: |
-        flutter pub get
+      - name: Install dependencies
+        run: |
+          flutter pub get
 
-    - name: Install Allure Commandline
-      run: |
-        brew install allure
+      - name: Install Allure Commandline
+        run: |
+          brew install allure
 
-    - name: Run tests and generate Allure report
-      run: |
-        dart run test_reporter -- flutter test
-        allure serve
+      # Melos Bootstrap
+      - name: Melos Bootstrap
+        run: melos bs
 
-    - name: Upload Allure report as an artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: allure-report
-        path: allure-report
+      # Install necessary dependencies using Melos
+      - name: Install dependencies with Melos
+        run: melos allures:install
+
+      # Generate project dependencies using Melos
+      - name: Generate dependencies with Melos
+        run: melos generate
+
+      # Analyze Dart project source
+      - name: Analyze project source
+        run: dart analyze
+
+      # Run tests using Melos (or flutter test if needed)
+      - name: Run tests
+        continue-on-error: true
+        run: melos test
+
+      - name: Run tests and generate Allure report
+        run: |
+          dart run test_reporter -- flutter test
+          allure serve
+
+      - name: Aggregate results
+        run: |
+          rm -rf allure-results
+          mkdir allure-results-tmp
+          find . -path "*/allure-results/*" -type f -exec cp '{}' ./allure-results-tmp/ \;
+          mv allure-results-tmp allure-results
+          zip -r allure-results.zip allure-results/
+
+      # Upload Allure report as an artifact
+      - name: Upload Allure report as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-results.zip
