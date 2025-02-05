@@ -1,72 +1,43 @@
-name: Flutter CI
+name: Flutter Test and Allure Report
 
 on:
   push:
     branches:
-      - '*'  # This triggers the workflow on any branch
+      - main
   pull_request:
     branches:
-      - '*'  # This also triggers on PRs for any branch
+      - main
 
 jobs:
-  test:
-    runs-on: macos-latest
+  test-report:
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Set up Flutter
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
-        with: 
-          flutter-version: '3.22.2'
+        with:
+          flutter-version: stable
+          cache: true
 
-      - name: Install dependencies
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Run Tests with Custom Reporter
+        run: dart run test_reporter -- flutter test
+
+      - name: Install Allure
         run: |
-          flutter pub get
-          dart pub global activate melos
+          sudo apt update
+          sudo apt install -y allure
 
-      - name: Melos Bootstrap
-        run: melos bs
+      - name: Generate Allure Report
+        run: allure generate --clean
 
-      - name: Install Allure Commandline
-        run: |
-          brew install allure
-
-      - name: Install dependencies with Melos
-        run: melos allures:install
-
-      - name: Generate dependencies with Melos
-        run: melos generate
-
-      # Consider passing '--fatal-infos' for stricter analysis.
-      - name: Analyze project source
-        run: dart analyze
-
-      - name: Run tests
-        continue-on-error: true
-        run: melos test
-
-      - name: Aggregate results
-        run: |
-          rm -rf allure-results
-          mkdir allure-results-tmp
-          find . -path "*/allure-results/*" -type f -exec cp '{}' ./allure-results-tmp/ \;
-          mv allure-results-tmp allure-results
-          zip -r allure-results.zip allure-results/
-
-      - name: Upload Allure report as an artifact
+      - name: Upload Allure Report as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
-          path: allure-results.zip
-
-      - name: Publish Allure report to GitHub Pages
-        uses: simple-elf/allure-report-action@master
-        if: always()
-        id: allure-report
-        with:
-          gh_pages: gh-pages
-          allure_results: allure-results
-          allure_report: allure-report
-          allure_history: allure-history
+          path: allure-report
