@@ -20,10 +20,14 @@ jobs:
       uses: subosito/flutter-action@v2
       with: 
         flutter-version: '3.22.2'
-          
+
     - name: Install dependencies
       run: |
         flutter pub get
+
+    - name: Install Allure Commandline
+      run: |
+        brew install allure
 
     - name: Run tests and generate Allure report
       run: |
