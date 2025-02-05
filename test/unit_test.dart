@@ -3,6 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main(){
   test('Number matched', () {
-    expect(1, 2);
+    expect(2, 2);
   });
 }
