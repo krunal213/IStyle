@@ -25,19 +25,26 @@ jobs:
       - name: Run Flutter Tests
         run: |
           flutter test --coverage
-          # If you're using a plugin like flutter_test_reporter:
-          flutter pub global activate flutter_test_reporter
-          flutter pub global run flutter_test_reporter --output-dir=test_report
-        continue-on-error: false  # This ensures the workflow stops if tests fail
+        continue-on-error: false  # Ensures the workflow stops if tests fail
 
       - name: Install Allure Commandline
         run: |
           brew install allure
         continue-on-error: false  # Ensures the workflow stops if installation fails
 
+      - name: Convert Coverage to JUnit Format
+        run: |
+          # You can use a tool or custom script here to convert coverage to JUnit XML
+          # Example using a hypothetical package or script:
+          # flutter pub global activate flutter_junit_reporter
+          # flutter pub global run flutter_junit_reporter --coverage coverage/lcov-report.html --output junit_report
+          
+          # Replace with your script or conversion logic
+          echo "Converting coverage report to JUnit format..."
+
       - name: Generate Allure Report
         run: |
-          allure generate test_report --clean -o allure-report
+          allure generate junit_report --clean -o allure-report
         continue-on-error: false  # Ensures the workflow stops if report generation fails
 
       - name: Upload Allure Report as Artifacts
