@@ -3,10 +3,10 @@ name: Flutter CI with Allure Report
 on:
   push:
     branches:
-      - main
+      - '*'  # Trigger on any push to any branch
   pull_request:
     branches:
-      - main
+      - '*'  # Trigger on any PR to any branch
 
 jobs:
   flutter_test:
@@ -20,7 +20,7 @@ jobs:
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.22.2'  # Use your required Flutter version
+        flutter-version: '3.0.0'  # Use your required Flutter version
 
     # Step 2: Install dependencies
     - name: Install dependencies
