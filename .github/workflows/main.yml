@@ -29,8 +29,10 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Install DCL (dart_code_linter)
-        run: flutter pub add --dev dart_code_linter
+      - name: Ensure dart_code_linter is in dev_dependencies
+        run: |
+          dart pub remove dart_code_linter || true
+          dart pub add --dev dart_code_linter
 
       - name: Run DCL
         id: dart_code_linter
