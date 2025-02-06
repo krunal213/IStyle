@@ -57,8 +57,8 @@ jobs:
           rm -rf allure-results
           mkdir allure-results-tmp
           find . -path "*/allure-results/*" -type f -exec cp '{}' ./allure-results-tmp/ \;
-          mv allure-results-tmp allure-results
-          zip -r allure-results.zip allure-results/
+          mv allure-results-tmp allure-results_v1
+          zip -r allure-results.zip allure-results_v1/
 
       - name: Test marketplace action
         uses: simple-elf/allure-report-action@master
@@ -69,11 +69,3 @@ jobs:
           allure_results: allure-results
           allure_report: allure-report
           allure_history: allure-history
-
-      - name: Deploy report to Github Pages
-        if: always()
-        uses: peaceiris/actions-gh-pages@v2
-        env:
-          PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PUBLISH_BRANCH: gh-pages
-          PUBLISH_DIR: allure-history
