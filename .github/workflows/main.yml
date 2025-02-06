@@ -20,7 +20,7 @@ jobs:
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.22.2'  # Use your required Flutter version
+        flutter-version: '3.0.0'  # Use your required Flutter version
 
     # Step 2: Install dependencies
     - name: Install dependencies
@@ -32,13 +32,19 @@ jobs:
       run: |
         flutter test --coverage  # You might also need to adjust for Allure
 
-    # Step 4: Generate and install Allure (if not already installed)
+    # Step 4: Install Allure CLI
     - name: Install Allure CLI
       run: |
+        # Install required dependencies
+        sudo apt-get update
+        sudo apt-get install -y wget openjdk-11-jdk
+        # Download Allure CLI
         wget https://github.com/allure-framework/allure2/releases/download/2.14.0/allure-2.14.0.tgz
         tar -zxvf allure-2.14.0.tgz
         sudo mv allure-2.14.0 /opt/allure
         sudo ln -s /opt/allure/allure /usr/local/bin/allure
+        # Verify installation
+        allure --version
 
     # Step 5: Generate Allure report (you might need a plugin or custom command here)
     - name: Generate Allure report
@@ -47,7 +53,7 @@ jobs:
 
     # Step 6: Upload Allure report as an artifact
     - name: Upload Allure report artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v2
       with:
         name: allure-report
         path: allure-report/
