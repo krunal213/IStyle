@@ -29,7 +29,7 @@ jobs:
       - name: Check if Melos Workspace Exists
         run: |
           if [ ! -f "melos.yaml" ]; then
-            echo "melos.yaml not found! Ensure you have set up Melos workspace."
+            echo "❌ Error: melos.yaml not found! Ensure you have set up a Melos workspace."
             exit 1
           fi
 
