@@ -42,21 +42,14 @@ jobs:
       - name: Install lcov
         run: brew install lcov
 
-      - name: Run Tests
+      - name: Run Tests and Generate Allure Report
         id: test
-        run: flutter test --coverage || true
-
-      - name: Generate Coverage Report
         run: |
-          genhtml coverage/lcov.info --output-directory=coverage/lcov-report
+          flutter test --coverage
+          allure generate allure-results --single-file -o allure-report --clean
 
       - name: Install Allure CLI
         run: brew install allure
-
-      - name: Run tests and generate Allure report
-        run: |
-          dart run test_reporter -- flutter test || true
-          allure generate allure-results --single-file -o allure-report --clean
 
   build_and_upload_artifact_on_success:
     name: Build & Upload Artifacts (Success)
