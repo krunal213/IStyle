@@ -20,37 +20,8 @@ jobs:
         with:
           channel: stable
 
-      - name: Install Dependencies
-        run: dart pub global activate melos
-
-      - name: Verify Melos Installation
-        run: melos --version
-
-      - name: Check if Melos Workspace Exists
-        run: |
-          if [ ! -f "melos.yaml" ]; then
-            echo "❌ Error: melos.yaml not found! Ensure you have set up a Melos workspace."
-            exit 1
-          fi
-
-      - name: Bootstrap Melos
-        run: melos bs
-
-      - name: Debug Melos Packages
-        run: melos list
-
-      - name: Install Allure Dependencies
-        run: melos allures:install
-
-      - name: Generate Reports
-        run: melos generate
-
-      - name: Analyze Project Source
-        run: dart analyze
-
-      - name: Run Tests
-        continue-on-error: true
-        run: melos test
+      - name: Run Test
+        run: dart run test_reporter -- flutter test
 
       - name: Aggregate Test Results
         run: |
