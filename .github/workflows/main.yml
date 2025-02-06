@@ -29,26 +29,33 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Run DCL
-        run: dcl analyze --reporter=github lib
+      - name: Install DCL (dart_code_linter)
+        run: flutter pub add --dev dart_code_linter
 
-      #- name: Run dart_code_linter
-      #  id: dart_code_linter
-      #  run: dart run dart_code_linter:metrics analyze . --reporter=html --output-directory=./html_reports
-      #  continue-on-error: false  # Stop build if linting fails
+      - name: Run DCL
+        id: dart_code_linter
+        run: dart run dart_code_linter:metrics analyze . --reporter=html --output-directory=./html_reports
+        continue-on-error: false  # Stop build if linting fails
 
       - name: Install lcov
         run: brew install lcov
 
       - name: Run Tests
         id: test
-        #if: success()  # Run only if linting passes
         run: flutter test --coverage
 
       - name: Generate Coverage Report
-        #if: success()  # Generate only if tests pass
         run: |
           genhtml coverage/lcov.info --output-directory=coverage/lcov-report
+
+      - name: Install Allure CLI
+        run: |
+          brew install allure
+
+      - name: Run tests and generate Allure report
+        run: |
+          dart run test_reporter -- flutter test || true
+          allure generate allure-results --single-file -o allure-report --clean
 
   build_and_upload_on_success:
     name: Build & Upload Artifacts (Success)
@@ -93,6 +100,7 @@ jobs:
             build/app/outputs/bundle/debug/app-debug.aab
             build/ios_build.tar.gz
             coverage/lcov-report
+            allure-report
 
   upload_build_and_coverage:
     name: Upload Build and Coverage to Google Drive
@@ -130,7 +138,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Coverage-${{ env.VERSION }}
-          path: coverage/lcov-report
+          path: |
+            coverage/lcov-report
+            allure-report
 
       - name: Upload Coverage Report ZIP to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
