@@ -21,18 +21,18 @@ jobs:
     - name: Install dependencies
       run: flutter pub get
 
-    - name: Run Flutter tests and generate Allure results
-      run: |
-        # Run Flutter tests and generate results in Allure format
-        flutter test --coverage
-        allure generate coverage/lcov-report --clean -o allure-results
-
     - name: Install Allure CLI
       run: |
         curl -o allure-commandline.zip -L https://github.com/allure-framework/allure2/releases/download/2.16.1/allure-2.16.1.zip
         unzip allure-commandline.zip
         sudo mv allure-2.16.1/bin/allure /usr/local/bin/allure
         allure --version
+
+    - name: Run Flutter tests and generate Allure results
+      run: |
+        # Run Flutter tests and generate results in Allure format
+        flutter test --coverage
+        allure generate coverage/lcov-report --clean -o allure-results
 
     - name: Generate Allure Report
       run: |
