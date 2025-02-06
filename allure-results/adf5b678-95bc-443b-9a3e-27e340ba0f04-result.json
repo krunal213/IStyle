@@ -1,0 +1,32 @@
+{
+  "id": "adf5b678-95bc-443b-9a3e-27e340ba0f04",
+  "historyId": "9c95a18a-fa8c-472a-b7cf-30d54ca947b3",
+  "start": 1738856292218,
+  "stop": 1738856292549,
+  "name": "When Splash Screen Open",
+  "description": null,
+  "status": "passed",
+  "links": [],
+  "labels": [
+    {
+      "name": "parentSuite",
+      "value": "test/splash_widget_test.dart"
+    },
+    {
+      "name": "package",
+      "value": "iStyle"
+    },
+    {
+      "name": "language",
+      "value": "dart"
+    }
+  ],
+  "statusDetails": {
+    "flaky": false,
+    "known": false,
+    "muted": false,
+    "message": null,
+    "trace": null
+  },
+  "attachments": []
+}
