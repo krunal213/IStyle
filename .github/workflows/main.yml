@@ -134,12 +134,6 @@ jobs:
     if: failure()
 
     steps:
-      - name: Download Coverage Report
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage/lcov-report
-          path: coverage
-
       - name: Upload Coverage Report as Artifact
         uses: actions/upload-artifact@v4
         with:
