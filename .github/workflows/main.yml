@@ -42,14 +42,14 @@ jobs:
       - name: Install lcov
         run: brew install lcov
 
+      - name: Install Allure CLI
+        run: brew install allure
+
       - name: Run Tests and Generate Allure Report
         id: test
         run: |
           flutter test --coverage
           allure generate allure-results --single-file -o allure-report --clean
-
-      - name: Install Allure CLI
-        run: brew install allure
 
   build_and_upload_artifact_on_success:
     name: Build & Upload Artifacts (Success)
