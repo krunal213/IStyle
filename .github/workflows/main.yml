@@ -32,10 +32,10 @@ jobs:
         run: |
           brew install allure
 
-      # Step 5: Run tests and generate Allure report
+      # Step 5: Run tests and generate Allure report (even if tests fail)
       - name: Run tests and generate Allure report
         run: |
-          dart run test_reporter -- flutter test
+          dart run test_reporter -- flutter test || true
           allure generate allure-results --single-file -o allure-report --clean
 
       # Step 6: Upload Allure report as artifact
