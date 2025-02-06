@@ -1,32 +1,53 @@
-name: Dart
+name: Flutter CI with Allure Report
 
 on:
   push:
-    branches: ["**"]
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  test_report:
-    permissions:
-      contents: write
-
-    runs-on: ubuntu-latest
+  flutter_test:
+    runs-on: ubuntu-latest  # Or macOS if you're working on a macOS-specific setup
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Setup Flutter SDK
-        uses: flutter-actions/setup-flutter@v3
-        with:
-          channel: stable
+    # Step 1: Set up Flutter
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.22.2'  # Use your required Flutter version
 
-      - name: Run Test
-        run: dart run test_reporter -- flutter test
+    # Step 2: Install dependencies
+    - name: Install dependencies
+      run: |
+        flutter pub get
 
-      - name: Aggregate Test Results
-        run: |
-          rm -rf allure-results
-          mkdir allure-results-tmp
-          find . -path "*/allure-results/*" -type f -exec cp '{}' ./allure-results-tmp/ \;
-          mv allure-results-tmp allure-results
-          zip -r allure-results-v1.zip allure-results/
+    # Step 3: Run tests and generate allure results (you may need a custom plugin for Allure)
+    - name: Run tests
+      run: |
+        flutter test --coverage  # You might also need to adjust for Allure
+
+    # Step 4: Generate and install Allure (if not already installed)
+    - name: Install Allure CLI
+      run: |
+        wget https://github.com/allure-framework/allure2/releases/download/2.14.0/allure-2.14.0.tgz
+        tar -zxvf allure-2.14.0.tgz
+        sudo mv allure-2.14.0 /opt/allure
+        sudo ln -s /opt/allure/allure /usr/local/bin/allure
+
+    # Step 5: Generate Allure report (you might need a plugin or custom command here)
+    - name: Generate Allure report
+      run: |
+        allure generate allure-results --clean
+
+    # Step 6: Upload Allure report as an artifact
+    - name: Upload Allure report artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: allure-report
+        path: allure-report/
