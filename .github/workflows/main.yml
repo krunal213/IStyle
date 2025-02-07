@@ -33,7 +33,7 @@ jobs:
         run: |
           dart pub remove dart_code_linter || true
           dart pub add --dev dart_code_linter
-      
+
       - name: Run DCL
         id: dart_code_linter
         run: dart run dart_code_linter:metrics analyze . --reporter=html --output-directory=./html_reports
@@ -44,27 +44,12 @@ jobs:
 
       - name: Run Tests
         id: test
-        run: |
-          mkdir -p coverage  # Ensure the coverage directory exists
-          flutter test --coverage || true
-          ls -l coverage  # Check if lcov.info is created
-          cat coverage/lcov.info || echo "No coverage data found"
-      
-      - name: Recreate Coverage If Missing
-        run: |
-          if [ ! -s coverage/lcov.info ]; then
-            echo "Re-running coverage collection..."
-            lcov --capture --directory . --output-file coverage/lcov.info
-          fi
+        run: flutter test --coverage || true
 
       - name: Generate Coverage Report
         run: |
-          if [ -s coverage/lcov.info ]; then
-            genhtml coverage/lcov.info --output-directory=coverage/lcov-report
-          else
-            echo "Skipping genhtml: No coverage data found."
-          fi
-      
+          genhtml coverage/lcov.info --output-directory=coverage/lcov-report
+          
       - name: Install Allure CLI
         run: brew install allure
 
@@ -73,7 +58,7 @@ jobs:
           set -o pipefail
           dart run test_reporter -- flutter test
           allure generate allure-results --single-file -o allure-report --clean
-  
+
   build_and_upload_artifact_on_success:
     name: Build & Upload Artifacts (Success)
     runs-on: macos-latest
@@ -98,12 +83,12 @@ jobs:
           flutter build apk --debug
           flutter build appbundle --debug
           flutter build ios --debug --no-codesign
-      
+
       - name: Compress iOS Build Directory
         run: |
           cd build
           tar -czf ios_build.tar.gz ios
-      
+
       - name: Upload Build Artifacts and Coverage Report
         uses: actions/upload-artifact@v4
         with:
@@ -114,7 +99,7 @@ jobs:
             build/ios_build.tar.gz
             coverage/lcov-report
             allure-report
-  
+
   upload_build_and_coverage_in_google_drive_on_success:
     name: Upload Build and Coverage to Google Drive
     runs-on: ubuntu-latest
@@ -129,12 +114,12 @@ jobs:
       - name: List artifacts folder before zipping
         run: |
           ls -la artifacts
-      
+
       - name: Create Build-and-Coverage ZIP
         run: |
           cd artifacts
           zip -r Build-and-Coverage.zip .
-      
+
       - name: Upload Build ZIP to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
         with:
@@ -144,7 +129,7 @@ jobs:
 
   build_and_upload_on_failure:
     name: Upload Coverage Report on Failure
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     needs: build
     if: failure()
 
