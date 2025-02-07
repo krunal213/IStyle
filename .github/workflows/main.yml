@@ -120,7 +120,7 @@ jobs:
       - name: Create Build-and-Coverage ZIP
         run: |
           cd artifacts
-          zip -r Build-and-Coverage.zip
+          zip -r Build-and-Coverage.zip .
 
       - name: Upload Build ZIP to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
@@ -167,7 +167,7 @@ jobs:
       - name: Create Coverage-and-Allure ZIP
         run: |
           cd artifacts
-          zip -r Coverage-and-Allure.zip
+          zip -r Coverage-and-Allure.zip .
 
       - name: Upload Coverage Report ZIP to Google Drive
         uses: adityak74/google-drive-upload-git-action@main
