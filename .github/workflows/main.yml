@@ -44,12 +44,17 @@ jobs:
 
       - name: Run Tests
         id: test
-        run: flutter test --coverage || true
+        run: flutter test --coverage || true  # Continue even if tests fail
 
       - name: Generate Coverage Report
         run: |
-          genhtml coverage/lcov.info --output-directory=coverage/lcov-report
-          
+          # Always generate the coverage report, regardless of test pass/fail
+          if [ -f coverage/lcov.info ]; then
+            genhtml coverage/lcov.info --output-directory=coverage/lcov-report
+          else
+            echo "Coverage file not found, skipping report generation."
+          fi
+
       - name: Install Allure CLI
         run: brew install allure
 
@@ -89,10 +94,10 @@ jobs:
           cd build
           tar -czf ios_build.tar.gz ios
 
-      - name: Upload Build Artifacts and Coverage Report
+      - name: Upload Build Artifacts, Coverage Report, and Allure Report
         uses: actions/upload-artifact@v4
         with:
-          name: Build-and-Coverage
+          name: Build-and-Coverage-and-Allure
           path: |
             build/app/outputs/flutter-apk/app-debug.apk
             build/app/outputs/bundle/debug/app-debug.aab
@@ -108,7 +113,7 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: Build-and-Coverage
+          name: Build-and-Coverage-and-Allure
           path: artifacts
 
       - name: List artifacts folder before zipping
@@ -128,7 +133,7 @@ jobs:
           filename: artifacts/Build-and-Coverage.zip
 
   build_and_upload_on_failure:
-    name: Upload Coverage Report on Failure
+    name: Upload Coverage Report and Allure Report on Failure
     runs-on: macos-latest
     needs: build
     if: failure()
@@ -138,7 +143,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Coverage-and-Allure
-          path: allure-report
+          path: |
+            coverage/lcov-report
+            allure-report
 
   upload_coverage_in_google_drive_on_failure:
     name: Upload Coverage in Google Drive on Failure
@@ -156,4 +163,4 @@ jobs:
         with:
           credentials: ${{ secrets.CREDENTIALS }}
           folderId: ${{ secrets.FOLDERID }}
-          filename: Coverage-and-Allure.zip
+          filename: artifacts/Coverage-and-Allure.zip
