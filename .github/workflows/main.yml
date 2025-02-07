@@ -138,9 +138,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Coverage-and-Allure
-          path: |
-            coverage/lcov-report
-            allure-report
+          path: allure-report
 
   upload_coverage_in_google_drive_on_failure:
     name: Upload Coverage in Google Drive on Failure
