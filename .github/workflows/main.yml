@@ -48,12 +48,7 @@ jobs:
 
       - name: Generate Coverage Report
         run: |
-          # Always generate the coverage report, regardless of test pass/fail
-          if [ -f coverage/lcov.info ]; then
-            genhtml coverage/lcov.info --output-directory=coverage/lcov-report
-          else
-            echo "Coverage file not found, skipping report generation."
-          fi
+          genhtml coverage/lcov.info --output-directory=coverage/lcov-report
 
       - name: Install Allure CLI
         run: brew install allure
@@ -139,6 +134,9 @@ jobs:
     if: failure()
 
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
       - name: Upload Coverage Report and Allure Report as Artifact
         uses: actions/upload-artifact@v4
         with:
