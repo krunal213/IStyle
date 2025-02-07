@@ -134,11 +134,13 @@ jobs:
     if: failure()
 
     steps:
-      - name: Upload Coverage Report as Artifact
+      - name: Upload Coverage Report and Allure Report as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Coverage
-          path: coverage/lcov-report
+          name: Coverage-and-Allure
+          path: |
+            coverage/lcov-report
+            allure-report
 
   upload_coverage_in_google_drive_on_failure:
     name: Upload Coverage in Google Drive on Failure
@@ -148,7 +150,7 @@ jobs:
       - name: Download Coverage Report Artifact
         uses: actions/download-artifact@v4
         with:
-          name: Coverage
+          name: Coverage-and-Allure
           path: artifacts
 
       - name: Upload Coverage Report ZIP to Google Drive
@@ -156,4 +158,4 @@ jobs:
         with:
           credentials: ${{ secrets.CREDENTIALS }}
           folderId: ${{ secrets.FOLDERID }}
-          filename: Coverage.zip
+          filename: Coverage-and-Allure.zip
