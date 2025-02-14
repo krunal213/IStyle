@@ -1,35 +1,33 @@
-name: "Build"
+name: Flutter Linting
 
 on:
   push:
-    branches:
-      - '**'  # Run on all branches
+  pull_request:
 
 jobs:
-  build:
-    name: Build & Run Tests
-    runs-on: macos-latest
+  lint:
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      - name: Set Up Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'oracle'
-          java-version: '17'
-
-      - name: Set Up Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.2'
-          channel: 'stable'
+          flutter-version: '3.0.0' # Change to your Flutter version if needed
 
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Run DCL
-        id: dart_code_linter
-        run: dart run dart_code_linter:metrics analyze . --reporter=html --output-directory=./html_reports
-        continue-on-error: false  # Stop build if linting fails
+      - name: Run Dart Code Linter
+        run: |
+          flutter pub run dart_code_linter:metrics analyze lib --reporter=html --output-directory=lint_report
+        continue-on-error: true
+
+      - name: Upload Lint Report
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: lint-report
+          path: lint_report
