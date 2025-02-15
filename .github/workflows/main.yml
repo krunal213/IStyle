@@ -22,9 +22,7 @@ jobs:
         run: flutter pub get
 
       - name: Run Dart Code Linter and Generate HTML Report
-        run: |
-          mkdir -p lint_report
-          dart run dart_code_linter:metrics analyze . --fatal-style --reporter=html --output-directory=lint_report
+        run: dart run dart_code_linter:metrics analyze . --fatal-style --reporter=html --output-directory=lint_report
 
       - name: Upload Lint Report Artifact on Failure
         if: failure()  # Runs only if the previous step fails
