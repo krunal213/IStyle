@@ -26,7 +26,8 @@ jobs:
           mkdir -p lint_report
           dart run dart_code_linter:metrics analyze . --fatal-style --reporter=html --output-directory=lint_report
 
-      - name: Upload Lint Report Artifact
+      - name: Upload Lint Report Artifact on Failure
+        if: failure()  # Runs only if the previous step fails
         uses: actions/upload-artifact@v4
         with:
           name: lint-report
