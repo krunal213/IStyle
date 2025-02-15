@@ -27,7 +27,7 @@ jobs:
           flutter pub run dart_code_linter:metrics analyze lib --fatal-style --reporter=html > lint_report/index.html
 
       - name: Upload Lint Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: lint-report
           path: lint_report/
