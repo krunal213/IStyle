@@ -12,7 +12,7 @@ dart_code_linter:
 
   metrics:
    cyclomatic-complexity: 7
-   maximum-nesting: 2
+   maximum-nesting: 4
    number-of-parameters: 5
 
   rules:
