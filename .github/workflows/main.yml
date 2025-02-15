@@ -28,7 +28,7 @@ jobs:
 
       - name: Upload Lint Report Artifact on Failure
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: lint-report
           path: lint_report/lint_report.html
