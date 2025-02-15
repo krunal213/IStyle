@@ -22,14 +22,9 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      #- name: Run Dart Code Linter and Generate HTML Report
-      #  run: dart run dart_code_linter:metrics analyze . --fatal-style --reporter=html --output-directory=lint_report --verbose
-      - name: Run Dart Linter (Save Analysis)
-        run: dart run dart_code_linter:metrics analyze . --fatal-style --output-directory=lint_results
-
-      - name: Generate HTML Report (Without Reanalysis)
-        run: dart run dart_code_linter:metrics report --input-directory=lint_results --reporter=html --output-directory=lint_report
-
+      - name: Run Dart Code Linter and Generate HTML Report
+        run: dart run dart_code_linter:metrics analyze . --fatal-style --reporter=html --output-directory=lint_report --verbose
+      
       - name: Upload Lint Report Artifact on Failure
         if: failure()
         uses: actions/upload-artifact@v4
