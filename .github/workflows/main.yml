@@ -56,12 +56,19 @@ jobs:
         id: test
         run: flutter test --coverage  # Test failures will cause this step to fail
 
-      - name: Generate Coverage Report (Runs Even If Tests Fail)
-        if: always()
+      - name: Check Test Coverage
+        id: coverage_check
+        uses: VeryGoodOpenSource/very_good_coverage@v2
+        with:
+          path: 'coverage/lcov.info'
+          min_coverage: 100
+
+      - name: Generate Coverage Report
+        if: failure()
         run: genhtml coverage/lcov.info --output-directory=coverage/lcov-report
-          
-      - name: Upload Coverage Report (Runs Even If Tests Fail)
-        if: always()
+      
+      - name: Upload Coverage Report
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: test-coverage-report
