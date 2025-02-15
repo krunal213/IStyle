@@ -24,7 +24,7 @@ jobs:
       - name: Run Dart Code Linter and Generate HTML Report
         run: |
           mkdir -p lint_report
-          dart run dart_code_linter:metrics analyze lib --fatal-style --reporter=html --output-directory=lint_report
+          dart run dart_code_linter:metrics analyze . --fatal-style --reporter=html --output-directory=lint_report
 
       - name: Upload Lint Report Artifact
         uses: actions/upload-artifact@v4
