@@ -24,7 +24,6 @@ jobs:
       - name: Run Dart Code Linter
         run: |
           flutter pub run dart_code_linter:metrics analyze lib --reporter=html --output-directory=lint_report
-        continue-on-error: true
 
       - name: Upload Lint Report
         if: failure()
