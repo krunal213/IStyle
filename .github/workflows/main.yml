@@ -21,5 +21,13 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Run Dart Code Linter
-        run: flutter pub run dart_code_linter:metrics analyze lib --fatal-style
+      - name: Run Dart Code Linter and Generate Report
+        run: |
+          mkdir -p lint_reports
+          flutter pub run dart_code_linter:metrics analyze lib --fatal-style --reporter=html > lint_reports/lint_report.html
+
+      - name: Upload Lint Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: lint-report
+          path: lint_reports/lint_report.html
