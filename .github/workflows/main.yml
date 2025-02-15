@@ -20,10 +20,10 @@ jobs:
           channel: 'stable'
 
       - name: Install Dependencies
-        run: flutter pub get | tee flutter_pub_get.log
+        run: flutter pub get
 
       - name: Run Dart Code Linter and Generate HTML Report
-        run: dart run dart_code_linter:metrics analyze . --fatal-style --reporter=html --output-directory=lint_report | tee lint.log
+        run: dart run dart_code_linter:metrics analyze . --fatal-style --reporter=html --output-directory=lint_report
 
       - name: Upload Lint Report Artifact on Failure
         if: failure()
@@ -47,18 +47,18 @@ jobs:
           channel: 'stable'
 
       - name: Install Dependencies
-        run: flutter pub get | tee flutter_pub_get.log
+        run: flutter pub get
 
       - name: Install lcov
-        run: brew install lcov | tee lcov_install.log
+        run: brew install lcov  # Using Homebrew for macOS
 
       - name: Run Tests
         id: test
-        run: flutter test --coverage | tee test.log  # Test failures will cause this step to fail
+        run: flutter test --coverage  # Test failures will cause this step to fail
 
       - name: Generate Coverage Report (Runs Even If Tests Fail)
         if: always()
-        run: genhtml coverage/lcov.info --output-directory=coverage/lcov-report | tee coverage.log
+        run: genhtml coverage/lcov.info --output-directory=coverage/lcov-report
           
       - name: Upload Coverage Report (Runs Even If Tests Fail)
         if: always()
