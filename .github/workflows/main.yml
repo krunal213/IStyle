@@ -24,11 +24,10 @@ jobs:
       - name: Run Dart Code Linter and Generate HTML Report
         run: |
           mkdir -p lint_report
-          dart  run dart_code_linter:metrics analyze lib --fatal-style --reporter=html > lint_report/lint_report.html
+          flutter pub run dart_code_metrics:metrics analyze lib --fatal-style --reporter=html > lint_report
 
-      - name: Upload Lint Report Artifact on Failure
-        if: failure()
-        uses: actions/upload-artifact@v4
+      - name: Upload Lint Report Artifact
+        uses: actions/upload-artifact@v3
         with:
           name: lint-report
-          path: lint_report/lint_report.html
+          path: lint_report
