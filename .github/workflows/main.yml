@@ -2,11 +2,12 @@ name: Flutter Linting
 
 on:
   push:
-  pull_request:
+    branches:
+      - '**'  # Run on push to any branch
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest  # Changed to macOS
 
     steps:
       - name: Checkout Repository
@@ -25,8 +26,43 @@ jobs:
         run: dart run dart_code_linter:metrics analyze . --fatal-style --reporter=html --output-directory=lint_report
 
       - name: Upload Lint Report Artifact on Failure
-        if: failure()  # Runs only if the previous step fails
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: lint-report
           path: lint_report
+
+  after_lint:
+    needs: lint  # Runs only if 'lint' job succeeds
+    runs-on: macos-latest  # Changed to macOS
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set Up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.2'
+          channel: 'stable'
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Install lcov
+        run: brew install lcov  # Using Homebrew for macOS
+
+      - name: Run Tests
+        id: test
+        run: flutter test --coverage  # Test failures will cause this step to fail
+
+      - name: Generate Coverage Report (Runs Even If Tests Fail)
+        if: always()
+        run: genhtml coverage/lcov.info --output-directory=coverage/lcov-report
+          
+      - name: Upload Coverage Report (Runs Even If Tests Fail)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/lcov-report
