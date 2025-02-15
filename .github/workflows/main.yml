@@ -21,6 +21,11 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Ensure dart_code_linter is in dev_dependencies
+        run: |
+          dart pub remove dart_code_linter || true
+          dart pub add --dev dart_code_linter
+
       - name: Run Dart Code Linter and Generate HTML Report
         run: |
           mkdir -p lint_report
