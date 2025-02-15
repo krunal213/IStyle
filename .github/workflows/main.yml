@@ -21,15 +21,10 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Ensure dart_code_linter is in dev_dependencies
-        run: |
-          dart pub remove dart_code_linter || true
-          dart pub add --dev dart_code_linter
-
       - name: Run Dart Code Linter and Generate HTML Report
         run: |
           mkdir -p lint_report
-          flutter pub run dart_code_metrics:metrics analyze lib --fatal-style --reporter=html --output-directory=./lint_report
+          dart pub run dart_code_metrics:metrics analyze lib --fatal-style --reporter=html --output-directory=./lint_report
 
       - name: Upload Lint Report Artifact
         uses: actions/upload-artifact@v4
