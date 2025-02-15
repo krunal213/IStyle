@@ -32,7 +32,7 @@ jobs:
           name: lint-report
           path: lint_report
 
-  after_lint:
+  test_coverage_report:
     needs: lint  # Runs only if 'lint' job succeeds
     runs-on: macos-latest  # Changed to macOS
 
