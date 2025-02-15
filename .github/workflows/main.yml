@@ -51,6 +51,9 @@ jobs:
 
       - name: Install lcov
         run: brew install lcov  # Using Homebrew for macOS
+      
+      - name: Install Allure CLI
+        run: brew install allure
 
       - name: Run Tests
         id: test
